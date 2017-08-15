@@ -27,6 +27,34 @@ def get_outline( points ):
     return all_outline
 
 
+# this gets the outline of points using the bresenham line algorithm
+def intersection( points, obstacle_points ):
+    # center of mass of points
+    pnt_1 = center_of_mass(points)
+    pnt_2 = center_of_mass(obstacle_points)
+
+    # print pnt_2
+    # print dist(pnt_1, pnt_2)
+
+    if dist(pnt_1, pnt_2) < 5.0:
+        return True
+    return False
+
+
+def center_of_mass( points ):
+    # center of mass of points
+    x_sum = 0.0
+    y_sum = 0.0
+    for p in points:
+        x_sum += p[0]
+        y_sum += p[1]
+    x_val = x_sum/len(points)
+    y_val = y_sum/len(points)
+    return (x_val, y_val)
+
+def dist( pnt1, pnt2 ):
+    return ( (pnt1[0]-pnt2[0])**2 + (pnt1[1]-pnt2[1])**2 ) ** .5
+
 # These are the values stored in the grid to keep track of empty, robot, obstacle points, and goal
 # 0: empty space - white
 # 1: robot point - green
@@ -70,7 +98,7 @@ WINDOW_SIZE = [255*3-10, 255*3-10]
 screen = pygame.display.set_mode(WINDOW_SIZE)
 
 # Set title of screen
-pygame.display.set_caption("Array Backed Grid")
+pygame.display.set_caption("Motion Planning")
 
 # Loop until the user clicks the close button.
 done = False
@@ -88,17 +116,17 @@ for coord in robot_all:
 # set the coordinates of the goal
 # goal_points = [(20,20), (20,23), (23,23), (23,20)]
 # goal_points = [(0,0), (0,3), (3,3), (3,0)]
-goal_points = [(22,22), (22,25), (25,25), (25,22)]
+goal_points = [(22,2), (22,5), (25,5), (25,2)]
 goal_all = get_outline( goal_points )
 for coord in goal_all:
     grid[coord[0]][coord[1]] = 3
 
 
-# # set the coordinates of the obstacles
-# obj_points = [(10,10), (17,13), (15,15), (13,17)]
-# obj_all = get_outline( obj_points )
-# for coord in obj_all:
-#     grid[coord[0]][coord[1]] = 2
+# set the coordinates of the obstacles
+obj_points = [(22,9), (22,12), (25,12), (25,9)]
+obj_all = get_outline( obj_points )
+for coord in obj_all:
+    grid[coord[0]][coord[1]] = 2
 
 # define the potential moves that can occur
 moves = [(0,1), (1,0), (0,-1), (-1,0)]
@@ -132,7 +160,10 @@ while (i < len(q)):
                 found = True
                 break
         if not found:
-            q.append([new_points, new_moves])
+            # make sure it's not an obstacle
+            # if new_points != obj_all:
+            if not intersection(new_points, obj_all):
+                q.append([new_points, new_moves])
 
 print "Failure"
 
@@ -177,7 +208,7 @@ for move in path:
 
     current_points = new_points
 
-    time.sleep(1)
+    time.sleep(.1)
 
 
 
