@@ -21,6 +21,8 @@ private:
     void sort(QPoint pnt);
     QPoint moves[4] = { QPoint(1,0), QPoint(0,1), QPoint(-1,0), QPoint(0,-1) };
 
+    void solve_puzzle();
+
 protected:
     void paintEvent(QPaintEvent *event) override;
     void keyPressEvent( QKeyEvent* event ) override;

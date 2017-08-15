@@ -8,10 +8,16 @@
 #include <QKeyEvent>
 #include <QPaintEvent>
 
+#include "pathplanner.h"
+
 
 Game::Game(QWidget *parent) : QWidget(parent)
 {
     this->resize(parent->width(), parent->height());
+
+    // create the planner
+
+//    planner = new PathPlanner(this);
 
     // so key presses can be used
      setFocusPolicy(Qt::StrongFocus);
@@ -217,4 +223,9 @@ void Game::paintEvent(QPaintEvent *event)
             painter.drawRect(QRect(i*_square_size,j*_square_size, _square_size, _square_size));
         }
     }
+}
+
+void Game::solve_puzzle() {
+    PathPlanner planner;
+    planner.get_path(this);
 }

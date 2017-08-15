@@ -27,12 +27,14 @@ SOURCES += \
         main.cpp \
         widget.cpp \
     game.cpp \
-    gamepiece.cpp
+    gamepiece.cpp \
+    pathplanner.cpp
 
 HEADERS += \
         widget.h \
     game.h \
-    gamepiece.h
+    gamepiece.h \
+    pathplanner.h
 
 CONFIG += mobility
 MOBILITY = 
