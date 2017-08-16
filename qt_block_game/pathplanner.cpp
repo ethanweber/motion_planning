@@ -3,6 +3,6 @@
 PathPlanner::PathPlanner() {
 }
 
-std::vector< QPoint > get_path(Game *game) {
+std::vector< QPoint > get_path() {
 
 }

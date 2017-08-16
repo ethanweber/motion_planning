@@ -22,6 +22,16 @@ private:
     QPoint moves[4] = { QPoint(1,0), QPoint(0,1), QPoint(-1,0), QPoint(0,-1) };
 
     void solve_puzzle();
+    std::vector< QPoint > get_path();
+    bool exists(int i, int j, std::map<int, std::map<int, QPoint> > hash_map);
+
+    struct Cell
+    {
+        Cell *parent = NULL;
+        QPoint position;
+        std::vector< QPoint > total_visited;
+        std::vector< QPoint > children;
+    };
 
 protected:
     void paintEvent(QPaintEvent *event) override;

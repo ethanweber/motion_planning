@@ -12,8 +12,9 @@ public:
     GamePiece();
 public:
     QPoint location;
+    QPoint goal;
     int num;
-    int target;
+//    int target;
     void print() {
         std::cout << "Loc (x, y): " << location.x() << ", " << location.y() << "; Num: " << num << std::endl;
     }

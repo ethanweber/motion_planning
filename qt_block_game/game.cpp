@@ -8,16 +8,12 @@
 #include <QKeyEvent>
 #include <QPaintEvent>
 
-#include "pathplanner.h"
-
 
 Game::Game(QWidget *parent) : QWidget(parent)
 {
     this->resize(parent->width(), parent->height());
 
-    // create the planner
-
-//    planner = new PathPlanner(this);
+    
 
     // so key presses can be used
      setFocusPolicy(Qt::StrongFocus);
@@ -43,61 +39,59 @@ Game::Game(QWidget *parent) : QWidget(parent)
     // set the game pieces
     GamePiece temp_piece;
     temp_piece.num = 2;
-    temp_piece.target = 4;
+    // set the starting location
     temp_piece.location.setX(1);
     temp_piece.location.setY(0);
+    // set the goal
+    temp_piece.goal.setX(5);
+    temp_piece.goal.setY(5);
     _game_pieces.push_back(temp_piece);
 
-    //    temp_piece = GamePiece();
-    //    temp_piece.num = 2;
-    //    temp_piece.location.setX(2);
-    //    temp_piece.location.setY(0);
-    //    _game_pieces.push_back(temp_piece);
+    temp_piece = GamePiece();
+    temp_piece.num = 3;
+    temp_piece.location.setX(2);
+    temp_piece.location.setY(0);
+    temp_piece.goal.setX(10);
+    temp_piece.goal.setY(5);
+    _game_pieces.push_back(temp_piece);
 
     // set a goal
 //    _grid_array[_grid_array.size()-1][_grid_array[0].size()-1] = 4;
-    _grid_array[5][5] = 4;
 
     std::cout << _grid_array[0][5] << std::endl;
 
     // set block size
     _square_size = (int) (width() / _grid_array.size());
 
-    //set the game blocks
-    for (int i = 0; i < _game_pieces.size(); i++) {
-        int x = _game_pieces[i].location.x();
-        int y = _game_pieces[i].location.y();
-        _grid_array[x][y] = _game_pieces[i].num;
-    }
-
     update();
 }
 
+// move manual by arrow key presses
 void Game::keyPressEvent( QKeyEvent* event ) {
     // check for the arrow keys
     int key = event->key();
     switch (key) {
         case Qt::Key_Right:
-            std::cout << "Right" << std::endl;
+//            std::cout << "Right" << std::endl;
             move(QPoint(1,0));
             break;
         case Qt::Key_Left:
-            std::cout << "Left" << std::endl;
+//            std::cout << "Left" << std::endl;
             move(QPoint(-1,0));
             break;
         case Qt::Key_Up:
-            std::cout << "Up" << std::endl;
+//            std::cout << "Up" << std::endl;
             move(QPoint(0,-1));
             break;
         case Qt::Key_Down:
-            std::cout << "Down" << std::endl;
+//            std::cout << "Down" << std::endl;
             move(QPoint(0,1));
             break;
     }
    update();
 }
 
-// move by this amount
+// move by the amount specified by the point
 void Game::move(QPoint pnt) {
     sort(pnt);
     for (int i = 0; i < _game_pieces.size(); i++) {
@@ -111,16 +105,17 @@ void Game::move(QPoint pnt) {
         if (x_new < 0 || x_new >= _grid_array.size()) continue;
         if (y_new < 0 || y_new >= _grid_array[0].size()) continue;
 
-        if (_grid_array[x_new][y_new] == 0 || _grid_array[x_new][y_new] == _game_pieces[i].target) {
+        if (_grid_array[x_new][y_new] == 0 || _grid_array[x_new][y_new] > 100) {
             _grid_array[x][y] = 0;
             _grid_array[x_new][y_new] = _game_pieces[i].num;
             // set new location value
             _game_pieces[i].location = QPoint(x_new, y_new);
-            std::cout << "Updated location" << std::endl;
+//            std::cout << "Updated location" << std::endl;
         }
     }
 }
 
+// this sorts the points before moving the blocks
 void Game::sort(QPoint pnt) {
     int x = pnt.x();
     int y = pnt.y();
@@ -202,6 +197,16 @@ void Game::sort(QPoint pnt) {
 
 void Game::paintEvent(QPaintEvent *event)
 {
+    // redraw with the block positions
+    for (int i = 0; i < _game_pieces.size(); i++) {
+        int x_end = _game_pieces[i].goal.x();
+        int y_end = _game_pieces[i].goal.y();
+        _grid_array[x_end][y_end] = _game_pieces[i].num*100;
+        int x_start = _game_pieces[i].location.x();
+        int y_start = _game_pieces[i].location.y();
+        _grid_array[x_start][y_start] = _game_pieces[i].num;
+    }
+
     QPainter painter(this);
     painter.fillRect(QRect(0,0, width(), height()), Qt::red);
 
@@ -211,7 +216,9 @@ void Game::paintEvent(QPaintEvent *event)
             if (_grid_array[i][j] == 0) temp = QColor(255,255,255); // white
             else if (_grid_array[i][j] == 1) temp = QColor(0,255,0); // green
             else if (_grid_array[i][j] == 2) temp = QColor(255,0,0); // red
+            else if (_grid_array[i][j] == 200) temp = QColor(150,50,50); // red goal
             else if (_grid_array[i][j] == 3) temp = QColor(0,0,255); // blue
+            else if (_grid_array[i][j] == 300) temp = QColor(50,50,150); // blue goal
             else if (_grid_array[i][j] == 4) temp = QColor(255,255,0); // yellow
             else if (_grid_array[i][j] == 5) temp = QColor(0,0,0); // black
 
@@ -226,6 +233,26 @@ void Game::paintEvent(QPaintEvent *event)
 }
 
 void Game::solve_puzzle() {
-    PathPlanner planner;
-    planner.get_path(this);
+    Cell start;
+    start.position = _game_pieces[0].location;
+    start.total_visited.push_back(start.position);
+    int moves_size = sizeof(moves)/sizeof(moves[0]);
+    for (int i = 0; i < moves_size; i++) {
+        QPoint temp = start.position + moves[i];
+        if (temp == _game_pieces[0].goal) return;
+//        if ()
+//        if temp not in total_visited
+
+    }
+
+}
+
+std::vector< QPoint > Game::get_path()
+{
+    std::map<int, std::map<int, QPoint> > visited_points;
+}
+
+bool Game::exists(int i, int j, std::map<int, std::map<int, QPoint> > hash_map){
+    if (hash_map.find(i) != hash_map.end() && hash_map[i].find(j) != hash_map[i].end()) return 1;
+    else return 0;
 }
