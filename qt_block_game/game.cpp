@@ -8,7 +8,6 @@
 #include <QKeyEvent>
 #include <QPaintEvent>
 
-
 Game::Game(QWidget *parent) : QWidget(parent)
 {
     this->resize(parent->width(), parent->height());
@@ -240,16 +239,62 @@ void Game::solve_puzzle() {
     for (int i = 0; i < moves_size; i++) {
         QPoint temp = start.position + moves[i];
         if (temp == _game_pieces[0].goal) return;
-//        if ()
-//        if temp not in total_visited
-
     }
 
 }
 
-std::vector< QPoint > Game::get_path()
-{
-    std::map<int, std::map<int, QPoint> > visited_points;
+Cell* Game::search(Cell *current, int level) {
+
+    if (current->position == _game_pieces[0].goal) return current;
+
+    // search the entire graph
+
+    int moves_size = sizeof(moves)/sizeof(moves[0]);
+
+    // search the entire graph for level
+    std::vector< Cell* > explore;
+    get_check_points(current, level, explore);
+
+    for (int i = 0; i < explore.size(); i++) {
+        explore[i]->total_visited = get_path(explore[i]);
+
+        for (int i = 0; i < moves_size; i++) {
+            Cell *new_cell = new Cell;
+            new_cell->position = explore[i]->position + moves[i];
+
+            // if not already visited by cell
+            if (std::find(explore[i]->total_visited.begin(),
+                          explore[i]->total_visited.end(),
+                          new_cell->position) != explore[i]->total_visited.end())
+            {
+
+                new_cell->parent = explore[i];
+
+                new_cell->level = explore[i]->level + 1;
+                if (new_cell->position == _game_pieces[0].goal) return new_cell;
+
+                explore[i]->children.push_back(new_cell);
+            }
+        }
+    }
+
+    return search(current, level + 1);
+}
+
+void Game::get_check_points(Cell *point, int level, std::vector< Cell* > cells_level) {
+    for (int i = 0; i < point->children.size(); i++) {
+        if (level == point->children[i]->level) cells_level.push_back(point->children[i]);
+        else if (level < point->children[i]->level) get_check_points(point->children[i], level, cells_level);
+    }
+}
+
+std::vector< QPoint > Game::get_path(Cell *point) {
+    std::vector< QPoint > path;
+    while (point->parent != NULL) {
+        path.push_back(point->position);
+        point = point->parent;
+    }
+    return path;
 }
 
 bool Game::exists(int i, int j, std::map<int, std::map<int, QPoint> > hash_map){
