@@ -12,7 +12,7 @@ Game::Game(QWidget *parent) : QWidget(parent)
 {
     this->resize(parent->width(), parent->height());
 
-    
+
 
     // so key presses can be used
      setFocusPolicy(Qt::StrongFocus);
@@ -113,6 +113,34 @@ void Game::move(QPoint pnt) {
         }
     }
 }
+
+//void Game::sort(QPoint pnt, std::vector<GamePiece> &pieces) {
+//    int x = pnt.x();
+//    int y = pnt.y();
+
+//    bool left = (x < 0);
+//    bool right = (x > 0);
+//    bool up = (y < 0);
+//    bool down = (y > 0);
+
+//    for (int i = 1; i < pieces.size(); i++) {
+//        int j = i - 1;
+//        if (left) {
+//            while (j > 0 && pieces[j].location.y() < pieces[i].location.y()) {
+//                GamePiece temp = pieces[i];
+//                pieces[]
+//                j--;
+//            }
+//        } else if (right) {
+
+//        } else if (up) {
+
+//        } else if (down) {
+
+//        }
+
+//    }
+//}
 
 // this sorts the points before moving the blocks
 void Game::sort(QPoint pnt) {
